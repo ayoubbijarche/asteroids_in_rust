@@ -38,7 +38,7 @@ impl Player{
     
     pub fn draw(&mut self , d : &mut RaylibDrawHandle){
         d.draw_texture_ex(&self.sprite, self.pos, self.rotation, self.scale , Color::WHITE);
-        d.draw_text(&self.rotation.to_string(), 100 , 100, 30, Color::WHITE);
+
     }
 
     pub fn update(&mut self , rl : &mut RaylibHandle ){
@@ -77,20 +77,20 @@ impl Player{
             self.pos.y = 599.0
         }
         
-        
     }
+    
 
     pub fn shoot(&self , rl : &mut RaylibHandle , thread : &RaylibThread) ->Bullets {
-        let angle_rad = self.rotation.to_radians() * 10.0;
+        let angle_rad = self.rotation.to_radians();
         let texture = rl.load_texture(&thread, "assets/bullet.png").expect("didnt load bullet texture properly");
-        let bullet_speed = 150.0;
+        let bullet_speed = 550.0;
         Bullets {
             sprite: texture, 
             pos: self.pos, 
-            vel : Vector2::new(angle_rad.cos(), angle_rad.sin()) * bullet_speed,
+            vel : Vector2::new(angle_rad.sin(), -angle_rad.cos()) * bullet_speed,
             rotation : 0.0,
             scale: 0.5,
-            lifetime : 0.0
+            lifetime : 5.0
         }
     }
 }
