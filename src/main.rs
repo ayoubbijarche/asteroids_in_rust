@@ -1,9 +1,16 @@
-use raylib::{prelude::*};
+use raylib::prelude::*;
 use crate::{asteroids::Asteroids, player::{Bullets, Player}};
 mod player;
 mod asteroids;
 use raylib::audio::RaylibAudio;
 
+
+fn aabb_collision(pos1: Vector2, size1: Vector2, pos2: Vector2, size2: Vector2) -> bool {
+    pos1.x < pos2.x + size2.x &&
+    pos1.x + size1.x > pos2.x &&
+    pos1.y < pos2.y + size2.y &&
+    pos1.y + size1.y > pos2.y
+}
 
 
 
@@ -19,33 +26,35 @@ fn main() {
     let shooting_sound = audio.new_sound("assets/shoot.wav").expect("shooting audio didn t load");
     let bg_music = audio.new_music("assets/bgmusic.wav").expect("couldnt load bg music");
     audio.set_master_volume(0.2);
-    
+
     Music::play_stream(&bg_music);
-    
-    
-    
-    
+
+
+    let mut score = 0;
+
+
     if Music::is_stream_playing(&bg_music){
         println!("its playing");
     }else{
         println!("bg music is not playing")
     }
-    
+
     while !rl.window_should_close(){
         player.update(&mut rl);
         Music::update_stream(&bg_music);
-        
+
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE){
             bullets.push(player.shoot(&mut rl, &thread));
             println!("{:?}" , bullets);
             Sound::play(&shooting_sound);
+            score += 1;
         }
 
 
         for asteroid in asteroids.iter_mut(){
             asteroid.update(&mut rl);
             asteroid.spawn_rate -= rl.get_frame_time();
-        
+
         }
 
 
@@ -64,9 +73,18 @@ fn main() {
 
         bullets.retain(|b| b.lifetime > 0.0);
 
+
+        for asteroid in asteroids.iter_mut(){
+            if aabb_collision(player.pos, Vector2::new(player.sprite.width as f32, player.sprite.height as f32), asteroid.pos, Vector2::new(asteroid.sprite.width as f32, asteroid.sprite.height as f32)){
+                println!("they collided sir");
+            }
+        }
+
+
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
-        d.draw_text("Score : 0", 650 , 20, 20, Color::WHITE);
+        d.draw_text("Score : ", 650 , 20, 20, Color::WHITE);
+        d.draw_text(&score.to_string(), 730 , 20, 20, Color::WHITE);
         player.draw(&mut d);
 
         for bullet in &bullets{
@@ -77,7 +95,6 @@ fn main() {
             d.draw_texture_ex(&asteroid.sprite, asteroid.pos, asteroid.rotation, asteroid.scale, Color::WHITE);
         }
     }
-    
-    
+
 
 }

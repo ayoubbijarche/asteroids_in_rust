@@ -1,12 +1,12 @@
 use raylib::prelude::*;
 
 pub struct Player{
-    sprite : Texture2D,
-    pos : Vector2,
-    vel : Vector2,
-    rotation : f32,
-    speed : f32,
-    scale : f32
+    pub sprite : Texture2D,
+    pub pos : Vector2,
+    pub vel : Vector2,
+    pub rotation : f32,
+    pub speed : f32,
+    pub scale : f32
 }
 
 
