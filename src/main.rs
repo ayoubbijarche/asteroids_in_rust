@@ -21,9 +21,12 @@ fn main() {
     let mut bullets : Vec<Bullets> = Vec::new();
     let mut asteroids : Vec<Asteroids> = Vec::new(); 
     let mut asteroid_spawn_timer = 0.0f32;
-
+    
+    let mut dead = false;
+    
     let audio = RaylibAudio::init_audio_device().expect("error loading audio device");
     let shooting_sound = audio.new_sound("assets/shoot.wav").expect("shooting audio didn t load");
+    let dead_sound = audio.new_sound("assets/dead.wav").expect("shooting audio didn t load");
     let bg_music = audio.new_music("assets/bgmusic.wav").expect("couldnt load bg music");
     audio.set_master_volume(0.2);
 
@@ -42,13 +45,13 @@ fn main() {
     while !rl.window_should_close(){
         player.update(&mut rl);
         Music::update_stream(&bg_music);
-
+        
         if rl.is_key_pressed(KeyboardKey::KEY_SPACE){
             bullets.push(player.shoot(&mut rl, &thread));
             println!("{:?}" , bullets);
             Sound::play(&shooting_sound);
-            score += 1;
         }
+        
 
 
         for asteroid in asteroids.iter_mut(){
@@ -60,7 +63,7 @@ fn main() {
 
         asteroid_spawn_timer += rl.get_frame_time();
 
-        if asteroid_spawn_timer >= 3.0 {
+        if asteroid_spawn_timer >= 2.0 {
             asteroids.push(Asteroids::init(&mut rl , &thread));
             println!("{:?}" , asteroids);
             asteroid_spawn_timer = 0.0;
@@ -73,19 +76,42 @@ fn main() {
 
         bullets.retain(|b| b.lifetime > 0.0);
 
-
+        //player & asteroid collision
         for asteroid in asteroids.iter_mut(){
-            if aabb_collision(player.pos, Vector2::new(player.sprite.width as f32, player.sprite.height as f32), asteroid.pos, Vector2::new(asteroid.sprite.width as f32, asteroid.sprite.height as f32)){
+            if aabb_collision(player.pos, Vector2::new(player.sprite.width as f32 / 2.0, player.sprite.height as f32 / 2.0), asteroid.pos, Vector2::new(asteroid.sprite.width as f32 / 2.0, asteroid.sprite.height as f32 / 2.0)){
                 println!("they collided sir");
+                dead = true;
             }
         }
+        
+        //bullets and asteroids collision
+        asteroids.retain(|asteroid| {
+            let mut hit = false;
+            for bullet in bullets.iter_mut(){
+                if aabb_collision(asteroid.pos, Vector2::new(asteroid.sprite.width as f32 / 2.0, asteroid.sprite.height as f32 / 2.0) , bullet.pos, Vector2::new(bullet.sprite.width as f32 / 2.0, bullet.sprite.height as f32 / 2.0), ){
+                    println!("they collided sir bullets");
+                    score += 1;
+                    hit = true;
+                    break;
+                }
+            }
+            !hit
+        });
+        
 
 
         let mut d = rl.begin_drawing(&thread);
         d.clear_background(Color::BLACK);
         d.draw_text("Score : ", 650 , 20, 20, Color::WHITE);
         d.draw_text(&score.to_string(), 730 , 20, 20, Color::WHITE);
-        player.draw(&mut d);
+        
+        if dead == false{
+            player.draw(&mut d);
+        }
+        
+        if dead == true {
+            d.draw_text("You are Dead", 250 , 320, 40, Color::WHITE);
+        }
 
         for bullet in &bullets{
             d.draw_texture_ex(&bullet.sprite, bullet.pos, bullet.rotation, bullet.scale, Color::WHITE);
