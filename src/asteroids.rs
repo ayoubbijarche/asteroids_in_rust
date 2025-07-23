@@ -3,11 +3,12 @@ use rand::prelude::*;
 
 #[derive(Debug)]
 pub struct Asteroids{
-    sprite : Texture2D,
-    pos : Vector2,
-    vel : Vector2,
-    rotation : f32,
-    scale : f32
+    pub sprite : Texture2D,
+    pub pos : Vector2,
+    pub vel : Vector2,
+    pub rotation : f32,
+    pub scale : f32,
+    pub spawn_rate : f32
 }
 
 
@@ -34,7 +35,8 @@ impl Asteroids{
             pos : Vector2::new(x_range, y_range),
             vel : Vector2::new(vx_range , vy_range),
             rotation : 0.0,
-            scale : 0.5
+            scale : 0.5,
+            spawn_rate : 3.0
         }
         
     }
@@ -54,7 +56,7 @@ impl Asteroids{
         
         if self.pos.y > 600.0 {
             self.pos.y = 0.0;
-        }else if self.pos.y  < -10.0 {
+        }else if self.pos.y <  -10.0 {
             self.pos.y = 599.0
         }
         
