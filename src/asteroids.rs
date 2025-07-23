@@ -41,15 +41,12 @@ impl Asteroids{
         
     }
     
-    pub fn draw(&self , d : &mut RaylibDrawHandle){
-        d.draw_texture_ex(&self.sprite, self.pos, self.rotation, self.scale, Color::WHITE);
-    }
-    
+
     pub fn update(&mut self , rl : &mut RaylibHandle){
         self.rotation += 50.0 * rl.get_frame_time();
         
         if self.pos.x > 800.0 {
-            self.pos.x = 0.0;
+            self.pos.x = 0.1;
         }else if self.pos.x  < -10.0 {
             self.pos.x = 799.0
         }
