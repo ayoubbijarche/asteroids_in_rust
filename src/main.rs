@@ -26,7 +26,6 @@ fn main() {
     
     let audio = RaylibAudio::init_audio_device().expect("error loading audio device");
     let shooting_sound = audio.new_sound("assets/shoot.wav").expect("shooting audio didn t load");
-    let dead_sound = audio.new_sound("assets/dead.wav").expect("shooting audio didn t load");
     let bg_music = audio.new_music("assets/bgmusic.wav").expect("couldnt load bg music");
     audio.set_master_volume(0.2);
 
